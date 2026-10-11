@@ -1,7 +1,9 @@
 # HSE_Software_Design_HW-1
 Коростелев Александр, студент БПИ-258
 
-Запуск  приложения: dotnet run в директории ./src/VyshKat/
+Запуск  приложения: 
+dotnet build
+dotnet run --project src/VyshKat
 Запуск тестов: TODO
 
 Решения:  
