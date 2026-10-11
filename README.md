@@ -1,2 +1,8 @@
 # HSE_Software_Design_HW-1
-This repository contains a solution to homework 1 (HW-1), Software Design course at HSE University.
+Коростелев Александр, студент БПИ-258
+
+Запуск  приложения: dotnet run в директории ./src/VyshKat/
+Запуск тестов: TODO
+
+Использование ИИ (no code): обсуждение структуризации решения (разбиение на папки и файлы проекта).
+Использование ИИ (code) : TODO
