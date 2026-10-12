@@ -1,0 +1,84 @@
+using VyshKat.Application.Services;
+using VyshKat.Domain.Interfaces;
+
+namespace VyshKat.Cli;
+
+/// <summary>Formats fleet reports. Shared by the interactive menu and the demo scenario.</summary>
+public sealed class FleetReportPrinter
+{
+    private readonly ConsoleIO _io;
+
+    public FleetReportPrinter(ConsoleIO io)
+    {
+        _io = io ?? throw new ArgumentNullException(nameof(io));
+    }
+
+    public void PrintSummary(FleetService fleet)
+    {
+        _io.WriteLine("=== Fleet report ===");
+        _io.WriteLine($"Total units on balance : {fleet.UnitCount}");
+        _io.WriteLine($"  transport            : {fleet.AllTransports.Count}");
+        _io.WriteLine($"  things               : {fleet.AllThings.Count}");
+        _io.WriteLine($"Total daily energy     : {fleet.TotalDailyEnergyKWh:F2} kWh");
+
+        if (fleet.UnitCount == 0)
+        {
+            _io.WriteLine("(the fleet is empty)");
+            return;
+        }
+
+        _io.WriteLine();
+        _io.WriteLine($"{"Type",-14}{"Units",6}{"Energy, kWh",14}");
+        foreach (var group in fleet.AllItems.GroupBy(i => i.Name).OrderBy(g => g.Key))
+        {
+            var energy = group.OfType<IEnergyConsumer>().Sum(c => c.DailyEnergyConsumptionKWh);
+            _io.WriteLine($"{group.Key,-14}{group.Count(),6}{energy,14:F2}");
+        }
+    }
+
+    public void PrintBeginnerFriendly(FleetService fleet)
+    {
+        _io.WriteLine("=== Rental transport suitable for beginners ===");
+
+        var list = fleet.BeginnerFriendlyTransports;
+        if (list.Count == 0)
+        {
+            _io.WriteLine("(none)");
+            return;
+        }
+
+        _io.WriteLine($"{"Name",-14}{"Inventory #",-14}{"Simplicity",10}");
+        foreach (var t in list)
+            _io.WriteLine($"{t.Name,-14}{t.InventoryNumber,-14}{t.SimplicityForBeginner,10}");
+    }
+
+    public void PrintInventory(FleetService fleet)
+    {
+        _io.WriteLine("=== Inventory list ===");
+
+        if (fleet.UnitCount == 0)
+        {
+            _io.WriteLine("(the fleet is empty)");
+            return;
+        }
+
+        PrintSection("Transport", fleet.AllTransports);
+        PrintSection("Things", fleet.AllThings);
+    }
+
+    private void PrintSection(string title, IEnumerable<IInventoriable> items)
+    {
+        _io.WriteLine($"-- {title} --");
+        _io.WriteLine($"{"Name",-14}Inventory #");
+
+        var any = false;
+        foreach (var item in items)
+        {
+            any = true;
+            _io.WriteLine($"{item.Name,-14}{item.InventoryNumber}");
+        }
+
+        if (!any)
+            _io.WriteLine("(none)");
+    }
+}
