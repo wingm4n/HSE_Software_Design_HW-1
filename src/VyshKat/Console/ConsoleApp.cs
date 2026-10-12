@@ -1,6 +1,4 @@
 using VyshKat.Application.Services;
-using VyshKat.Domain.Entities.Things;
-using VyshKat.Domain.Entities.Transports;
 
 namespace VyshKat.Cli;
 
@@ -56,7 +54,7 @@ public sealed class ConsoleApp
         _io.WriteLine("  1. Accept new transport (with inspection)");
         _io.WriteLine("  2. Put a thing on balance");
         _io.WriteLine("  3. Fleet report (units and daily energy)");
-        _io.WriteLine("  4. Transport suitable for beginners");
+        _io.WriteLine("  4. Equipment suitable for beginners");
         _io.WriteLine("  5. Inventory list (all transport and things)");
         _io.WriteLine("  6. Run demo scenario");
         _io.WriteLine("  0. Exit");
@@ -93,14 +91,16 @@ public sealed class ConsoleApp
         var entries = ItemCatalog.Transports;
         var entry = entries[_io.ReadChoice("Transport type:", entries.Select(e => e.Title).ToList())];
 
-        var inventoryNumber = _io.ReadNonEmpty("Inventory number: ");
+        var inventoryNumber = ReadFreeInventoryNumber();
         var transport = entry.Create(_io, inventoryNumber);
 
         _io.WriteLine("Sending to the service center for inspection...");
+        // The number was checked for uniqueness above, so "false" here means a failed inspection.
         if (_fleet.AddTransport(transport))
             _io.WriteLine($"Inspection passed. Accepted into the fleet: {transport}");
         else
-            _io.WriteLine($"Inspection failed. Transport was NOT accepted: {transport}");
+            _io.WriteLine($"Inspection failed (daily energy above {ServiceCenter.MaxDailyEnergyKWh} kWh is not allowed). " +
+                          $"Transport was NOT accepted: {transport}");
     }
 
     private void AddThing()
@@ -109,10 +109,25 @@ public sealed class ConsoleApp
         var entries = ItemCatalog.Things;
         var entry = entries[_io.ReadChoice("Thing type:", entries.Select(e => e.Title).ToList())];
 
-        var inventoryNumber = _io.ReadNonEmpty("Inventory number: ");
+        var inventoryNumber = ReadFreeInventoryNumber();
         var thing = entry.Create(_io, inventoryNumber);
 
-        _fleet.AddThing(thing);
-        _io.WriteLine($"Put on balance: {thing}");
+        if (_fleet.AddThing(thing))
+            _io.WriteLine($"Put on balance: {thing}");
+        else
+            _io.WriteLine($"Thing was NOT put on balance: {thing}");
+    }
+
+    /// <summary>Asks for an inventory number until it is not used by any transport or thing yet.</summary>
+    private string ReadFreeInventoryNumber()
+    {
+        while (true)
+        {
+            var number = _io.ReadNonEmpty("Inventory number: ");
+            if (!_fleet.IsInventoryNumberTaken(number))
+                return number;
+
+            _io.WriteError($"Inventory number '{number}' is already in use. Enter another one.");
+        }
     }
 }

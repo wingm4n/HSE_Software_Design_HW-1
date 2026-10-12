@@ -1,5 +1,6 @@
 using VyshKat.Domain.Entities.Things;
 using VyshKat.Domain.Entities.Transports;
+using VyshKat.Domain.Interfaces;
 
 namespace VyshKat.Cli;
 
@@ -15,20 +16,20 @@ public sealed record CatalogEntry<T>(string Title, Func<ConsoleIO, string, T> Cr
 /// </summary>
 public static class ItemCatalog
 {
-    private const string SimplicityPrompt = "Simplicity for beginners (1-10): ";
+    private static readonly string SimplicityPrompt = $"Simplicity for beginners ({IBeginnerRated.MinSimplicity}-{IBeginnerRated.MaxSimplicity}): ";
     private const string EnergyPrompt = "Daily energy consumption, kWh: ";
     private const string SizePrompt = "Size (e.g. S / M / L): ";
 
     public static IReadOnlyList<CatalogEntry<Transport>> Transports { get; } = new[]
     {
         new CatalogEntry<Transport>("Scooter", (io, inv) =>
-            new Scooter(inv, io.ReadInt(SimplicityPrompt, 1, 10), io.ReadNonNegativeDouble(EnergyPrompt))),
+            new Scooter(inv, io.ReadInt(SimplicityPrompt, IBeginnerRated.MinSimplicity, IBeginnerRated.MaxSimplicity), io.ReadNonNegativeDouble(EnergyPrompt))),
 
         new CatalogEntry<Transport>("E-Bike", (io, inv) =>
-            new EBike(inv, io.ReadInt(SimplicityPrompt, 1, 10), io.ReadNonNegativeDouble(EnergyPrompt))),
+            new EBike(inv, io.ReadInt(SimplicityPrompt, IBeginnerRated.MinSimplicity, IBeginnerRated.MaxSimplicity), io.ReadNonNegativeDouble(EnergyPrompt))),
 
         new CatalogEntry<Transport>("Bicycle", (io, inv) =>
-            new Bicycle(inv, io.ReadInt(SimplicityPrompt, 1, 10))),
+            new Bicycle(inv, io.ReadInt(SimplicityPrompt, IBeginnerRated.MinSimplicity, IBeginnerRated.MaxSimplicity))),
     };
 
     public static IReadOnlyList<CatalogEntry<Thing>> Things { get; } = new[]
@@ -41,6 +42,12 @@ public static class ItemCatalog
 
         new CatalogEntry<Thing>("Charger", (io, inv) =>
             new Charger(inv, io.ReadNonNegativeDouble(EnergyPrompt))),
+
+        new CatalogEntry<Thing>("Charging cabinet", (io, inv) =>
+            new ChargingCabinet(
+                inv,
+                io.ReadInt(SimplicityPrompt, IBeginnerRated.MinSimplicity, IBeginnerRated.MaxSimplicity),
+                io.ReadNonNegativeDouble(EnergyPrompt))),
 
         new CatalogEntry<Thing>("Dock station", (io, inv) =>
             new DockStation(

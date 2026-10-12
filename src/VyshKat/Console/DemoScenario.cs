@@ -36,7 +36,11 @@ public sealed class DemoScenario
         Accept(fleet, new Bicycle("B-002", simplicityForBeginner: 5));
 
         _io.WriteLine();
-        _io.WriteLine("Step 2. Putting things on balance (no inspection for things).");
+        _io.WriteLine($"Step 2. The service center declines a faulty vehicle (limit: {ServiceCenter.MaxDailyEnergyKWh} kWh per day).");
+        Accept(fleet, new EBike("E-666", simplicityForBeginner: 8, dailyEnergyConsumptionKWh: 12.0));
+
+        _io.WriteLine();
+        _io.WriteLine("Step 3. Putting things on balance (no inspection for things).");
         var things = new Thing[]
         {
             new Helmet("H-001", "M"),
@@ -44,29 +48,28 @@ public sealed class DemoScenario
             new ElbowPads("EL-001", "S"),
             new Charger("C-001", dailyEnergyConsumptionKWh: 1.2),
             new DockStation("D-001", capacity: 6, dailyEnergyConsumptionKWh: 0.4),
+            new ChargingCabinet("CC-001", simplicityForBeginner: 8, dailyEnergyConsumptionKWh: 0.8),
+            new ChargingCabinet("CC-002", simplicityForBeginner: 3, dailyEnergyConsumptionKWh: 0.8),
         };
         foreach (var thing in things)
-        {
-            fleet.AddThing(thing);
-            _io.WriteLine($"  Added: {thing}");
-        }
+            AddThing(fleet, thing);
 
         _io.WriteLine();
-        _io.WriteLine("Step 3. Safety things can be repaired (polymorphic behaviour):");
+        _io.WriteLine("Step 4. Inventory numbers are unique across transport and things:");
+        Accept(fleet, new Bicycle("S-001", simplicityForBeginner: 9));
+        AddThing(fleet, new Helmet("B-001", "L"));
+
+        _io.WriteLine();
+        _io.WriteLine("Step 5. Safety things can be repaired (polymorphic behaviour):");
         foreach (var safety in things.OfType<SafetyThing>())
             _io.WriteLine($"  {safety.InventoryNumber}: {safety.Repair()}");
 
         _io.WriteLine();
-        _io.WriteLine("Step 4. Invalid data is rejected by the domain model:");
+        _io.WriteLine("Step 6. Invalid data is rejected by the domain model:");
         TryCreate("Scooter with an empty inventory number", () => new Scooter("  ", 5, 1.0));
         TryCreate("Bicycle with simplicity 11", () => new Bicycle("B-099", 11));
         TryCreate("E-Bike with negative energy", () => new EBike("E-099", 5, -2.0));
-
-        _io.WriteLine();
-        _io.WriteLine("Step 5. A strict service center declines a vehicle (demo stub plugged in via IServiceCenter):");
-        var strictFleet = new FleetService(new RejectAllServiceCenter());
-        Accept(strictFleet, new Scooter("S-777", simplicityForBeginner: 8, dailyEnergyConsumptionKWh: 0.5));
-        _io.WriteLine($"  Units in the strict fleet: {strictFleet.UnitCount}");
+        TryCreate("Charging cabinet with simplicity 0", () => new ChargingCabinet("CC-099", 0, 0.5));
 
         _io.WriteLine();
         _printer.PrintSummary(fleet);
@@ -81,10 +84,22 @@ public sealed class DemoScenario
 
     private void Accept(FleetService fleet, Transport transport)
     {
-        var accepted = fleet.AddTransport(transport);
-        _io.WriteLine(accepted
-            ? $"  ACCEPTED: {transport}"
-            : $"  REJECTED by service center: {transport}");
+        var wasTaken = fleet.IsInventoryNumberTaken(transport.InventoryNumber);
+
+        if (fleet.AddTransport(transport))
+            _io.WriteLine($"  ACCEPTED: {transport}");
+        else if (wasTaken)
+            _io.WriteLine($"  REJECTED (inventory number already in use): {transport}");
+        else
+            _io.WriteLine($"  REJECTED by service center: {transport}");
+    }
+
+    private void AddThing(FleetService fleet, Thing thing)
+    {
+        if (fleet.AddThing(thing))
+            _io.WriteLine($"  Added: {thing}");
+        else
+            _io.WriteLine($"  REJECTED (inventory number already in use): {thing}");
     }
 
     private void TryCreate(string description, Func<object> factory)
@@ -98,10 +113,5 @@ public sealed class DemoScenario
         {
             _io.WriteLine($"  {description}: {ex.Message.Split('\n')[0]}");
         }
-    }
-
-    private sealed class RejectAllServiceCenter : IServiceCenter
-    {
-        public bool Inspect(Transport transport) => false;
     }
 }

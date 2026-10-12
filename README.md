@@ -4,10 +4,16 @@
 Stack: C# on .NET 10 (SDK-style project), console application
 Libraries: Microsoft.Extensions.DependencyInjection (DI container), xUnit + Moq (unit testing) 
 
+Tests coverage check: Cobertura framework
+Result: Line coverage 94.88%, Branch coverage 95.57%
+
 Запуск  приложения: 
 dotnet build
 dotnet run --project src/VyshKat
 Запуск тестов: dotnet test
+
+Проверка покрытия тестами: 
+dotnet test --collect:"XPlat Code Coverage"
 
 
 Решения:  
@@ -19,7 +25,7 @@ FleetService реализует основную бизнес-логику па�
 
 
 Использование ИИ (no code): обсуждение структуризации решения (разбиение на папки и файлы проекта) - .
-Использование ИИ (code) : создание однотипных классов по заданному образцу - ; Создание расширенных тестовых случаев, увеличение покрытия тестами - + ;
+Использование ИИ (code) : создание однотипных классов по заданному образцу - ; Создание расширенных тестовых случаев, увеличение покрытия тестами - + ; 
 Консольный интерфейс (оболочка взаимодействия с бизнес-логикой) - ;
 
 SOLID + DI: DI явный, SOLID - L не отслеживается, но поддерживается в Things, может нарушаться в Transport - самый слабый. S + I среди Thnigs и Тransport (и всеми интерфейсами) = O (сильный). D - сквозной, везде используются интерфейсы и абстрактные классы, а не сами предметы.
