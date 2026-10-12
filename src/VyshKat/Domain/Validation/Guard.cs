@@ -8,6 +8,13 @@ namespace VyshKat.Domain.Validation;
 /// </summary>
 internal static class Guard
 {
+    /// <summary>
+    /// Returns <paramref name="value"/> if it contains non-whitespace characters.
+    /// </summary>
+    /// <param name="value">Value to check.</param>
+    /// <param name="paramName">Name of the checked parameter (goes into the exception).</param>
+    /// <param name="displayName">Field name used in the error message.</param>
+    /// <exception cref="ArgumentException">The value is null, empty or whitespace.</exception>
     public static string NotBlank(string? value, string paramName, string displayName)
     {
         if (string.IsNullOrWhiteSpace(value))
@@ -26,6 +33,13 @@ internal static class Guard
         return value;
     }
 
+    /// <summary>
+    /// Returns <paramref name="value"/> if it lies within the beginner-rating range
+    /// (<see cref="IBeginnerRated.MinSimplicity"/> to <see cref="IBeginnerRated.MaxSimplicity"/>).
+    /// </summary>
+    /// <param name="value">Rating to check.</param>
+    /// <param name="paramName">Name of the checked parameter.</param>
+    /// <exception cref="ArgumentOutOfRangeException">The rating is outside the allowed range.</exception>
     public static int Simplicity(int value, string paramName)
     {
         if (value < IBeginnerRated.MinSimplicity || value > IBeginnerRated.MaxSimplicity)

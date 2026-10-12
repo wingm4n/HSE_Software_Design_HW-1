@@ -6,8 +6,11 @@ namespace VyshKat.Domain.Interfaces;
 /// </summary>
 public interface IBeginnerRated : IInventoriable
 {
+    /// <summary>Lowest allowed beginner rating.</summary>
     const int MinSimplicity = 1;
+    /// <summary>Highest allowed beginner rating.</summary>
     const int MaxSimplicity = 10;
 
+    /// <summary>How easy the item is for a beginner, from <see cref="MinSimplicity"/> to <see cref="MaxSimplicity"/>.</summary>
     int SimplicityForBeginner { get; }
 }
