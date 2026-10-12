@@ -1,4 +1,4 @@
-namespace VyshKat.Domain.Entities.Transport;
+namespace VyshKat.Domain.Entities.Transports;
 
 public sealed class Bicycle : Transport
 {

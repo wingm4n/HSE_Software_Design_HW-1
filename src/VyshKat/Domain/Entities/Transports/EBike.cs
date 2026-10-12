@@ -1,6 +1,7 @@
 using VyshKat.Domain.Interfaces;
+using VyshKat.Domain.Validation;
 
-namespace VyshKat.Domain.Entities.Transport;
+namespace VyshKat.Domain.Entities.Transports;
 
 public sealed class EBike : Transport, IEnergyConsumer
 {
@@ -9,12 +10,8 @@ public sealed class EBike : Transport, IEnergyConsumer
     public EBike(string inventoryNumber, int simplicityForBeginner, double dailyEnergyConsumptionKWh)
         : base(inventoryNumber, "E-Bike", simplicityForBeginner)
     {
-        if (dailyEnergyConsumptionKWh < 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(dailyEnergyConsumptionKWh),
-                "Daily energy consumption cannot be negative.");
-
-        DailyEnergyConsumptionKWh = dailyEnergyConsumptionKWh;
+        DailyEnergyConsumptionKWh = Guard.EnergyConsumption(
+            dailyEnergyConsumptionKWh, nameof(dailyEnergyConsumptionKWh));
     }
 
     public override string ToString() =>

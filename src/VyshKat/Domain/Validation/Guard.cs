@@ -1,0 +1,38 @@
+using VyshKat.Domain.Interfaces;
+
+namespace VyshKat.Domain.Validation;
+
+/// <summary>
+/// Shared constructor argument checks, so every entity validates the same field the same way.
+/// Always throws <see cref="ArgumentException"/> (or a subclass) - the UI relies on that.
+/// </summary>
+internal static class Guard
+{
+    public static string NotBlank(string? value, string paramName, string displayName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException($"{displayName} cannot be empty.", paramName);
+
+        return value;
+    }
+
+    /// <summary>Daily energy must be a finite number >= 0 (NaN and Infinity are rejected too).</summary>
+    public static double EnergyConsumption(double value, string paramName)
+    {
+        if (!double.IsFinite(value) || value < 0)
+            throw new ArgumentOutOfRangeException(
+                paramName, value, "Daily energy consumption must be a non-negative finite number.");
+
+        return value;
+    }
+
+    public static int Simplicity(int value, string paramName)
+    {
+        if (value < IBeginnerRated.MinSimplicity || value > IBeginnerRated.MaxSimplicity)
+            throw new ArgumentOutOfRangeException(
+                paramName, value,
+                $"Simplicity must be between {IBeginnerRated.MinSimplicity} and {IBeginnerRated.MaxSimplicity}.");
+
+        return value;
+    }
+}

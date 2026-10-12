@@ -1,6 +1,6 @@
 using VyshKat.Application.Services;
 using VyshKat.Domain.Entities.Things;
-using VyshKat.Domain.Entities.Transport;
+using VyshKat.Domain.Entities.Transports;
 using VyshKat.Domain.Interfaces;
 
 namespace VyshKat.Cli;

@@ -1,4 +1,4 @@
-using VyshKat.Domain.Entities.Transport;
+using VyshKat.Domain.Entities.Transports;
 
 namespace VyshKat.Domain.Interfaces;
 

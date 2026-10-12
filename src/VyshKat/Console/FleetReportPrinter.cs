@@ -28,28 +28,28 @@ public sealed class FleetReportPrinter
         }
 
         _io.WriteLine();
-        _io.WriteLine($"{"Type",-14}{"Units",6}{"Energy, kWh",14}");
+        _io.WriteLine($"{"Type",-18}{"Units",6}{"Energy, kWh",14}");
         foreach (var group in fleet.AllItems.GroupBy(i => i.Name).OrderBy(g => g.Key))
         {
             var energy = group.OfType<IEnergyConsumer>().Sum(c => c.DailyEnergyConsumptionKWh);
-            _io.WriteLine($"{group.Key,-14}{group.Count(),6}{energy,14:F2}");
+            _io.WriteLine($"{group.Key,-18}{group.Count(),6}{energy,14:F2}");
         }
     }
 
     public void PrintBeginnerFriendly(FleetService fleet)
     {
-        _io.WriteLine("=== Rental transport suitable for beginners ===");
+        _io.WriteLine($"=== Equipment suitable for beginners (simplicity >= {FleetService.BeginnerSimplicityLimit}) ===");
 
-        var list = fleet.BeginnerFriendlyTransports;
+        var list = fleet.BeginnerFriendlyItems;
         if (list.Count == 0)
         {
             _io.WriteLine("(none)");
             return;
         }
 
-        _io.WriteLine($"{"Name",-14}{"Inventory #",-14}{"Simplicity",10}");
+        _io.WriteLine($"{"Name",-18}{"Inventory #",-14}{"Simplicity",10}");
         foreach (var t in list)
-            _io.WriteLine($"{t.Name,-14}{t.InventoryNumber,-14}{t.SimplicityForBeginner,10}");
+            _io.WriteLine($"{t.Name,-18}{t.InventoryNumber,-14}{t.SimplicityForBeginner,10}");
     }
 
     public void PrintInventory(FleetService fleet)
@@ -69,13 +69,13 @@ public sealed class FleetReportPrinter
     private void PrintSection(string title, IEnumerable<IInventoriable> items)
     {
         _io.WriteLine($"-- {title} --");
-        _io.WriteLine($"{"Name",-14}Inventory #");
+        _io.WriteLine($"{"Name",-18}Inventory #");
 
         var any = false;
         foreach (var item in items)
         {
             any = true;
-            _io.WriteLine($"{item.Name,-14}{item.InventoryNumber}");
+            _io.WriteLine($"{item.Name,-18}{item.InventoryNumber}");
         }
 
         if (!any)

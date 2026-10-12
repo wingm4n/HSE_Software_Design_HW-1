@@ -1,4 +1,5 @@
 using VyshKat.Domain.Interfaces;
+using VyshKat.Domain.Validation;
 
 namespace VyshKat.Domain.Entities.Things;
 
@@ -17,13 +18,9 @@ public sealed class DockStation : Thing, IEnergyConsumer
             throw new ArgumentOutOfRangeException(
                 nameof(capacity), "Capacity must be positive.");
 
-        if (dailyEnergyConsumptionKWh < 0)
-            throw new ArgumentOutOfRangeException(
-                nameof(dailyEnergyConsumptionKWh),
-                "Daily energy consumption cannot be negative.");
-
         Capacity = capacity;
-        DailyEnergyConsumptionKWh = dailyEnergyConsumptionKWh;
+        DailyEnergyConsumptionKWh = Guard.EnergyConsumption(
+            dailyEnergyConsumptionKWh, nameof(dailyEnergyConsumptionKWh));
     }
 
     public override string ToString() =>
