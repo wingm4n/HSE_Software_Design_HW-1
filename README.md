@@ -1,10 +1,14 @@
 # HSE_Software_Design_HW-1
 Коростелев Александр, студент БПИ-258
 
+Stack: C# on .NET 10 (SDK-style project), console application
+Libraries: Microsoft.Extensions.DependencyInjection (DI container), xUnit + Moq (unit testing) 
+
 Запуск  приложения: 
 dotnet build
 dotnet run --project src/VyshKat
-Запуск тестов: TODO
+Запуск тестов: dotnet test
+
 
 Решения:  
 разделяю бизнес-логику с абстракциями предметной области (Application + Domain) и консольный интерфейс (Console) - позволяет в будущем изменить UI на любой другой, не меняя бизнес-логику; разделение Application и Domain позволяет добавлять новые типы объектов / новые бизнес-правила, не нарушая OCP. 
