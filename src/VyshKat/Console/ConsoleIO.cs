@@ -8,21 +8,32 @@ namespace VyshKat.Cli;
 /// </summary>
 public sealed class ConsoleIO
 {
+    /// <summary>Word that the user can type at a prompt to abort the current operation.</summary>
     public const string CancelKeyword = "cancel";
 
+    // Injected streams (not System.Console), so the UI can be tested with in-memory readers and writers.
     private readonly TextReader _input;
     private readonly TextWriter _output;
 
+    /// <summary>
+    /// Creates the wrapper over the given streams.
+    /// </summary>
+    /// <param name="input">Source of the user's lines.</param>
+    /// <param name="output">Destination of prompts and messages.</param>
+    /// <exception cref="ArgumentNullException">Any argument is <c>null</c>.</exception>
     public ConsoleIO(TextReader input, TextWriter output)
     {
         _input = input ?? throw new ArgumentNullException(nameof(input));
         _output = output ?? throw new ArgumentNullException(nameof(output));
     }
 
+    /// <summary>Writes text without a line break (used for prompts).</summary>
     public void Write(string text) => _output.Write(text);
 
+    /// <summary>Writes text followed by a line break.</summary>
     public void WriteLine(string text = "") => _output.WriteLine(text);
 
+    /// <summary>Writes an error message with the <c>[!]</c> prefix.</summary>
     public void WriteError(string text) => _output.WriteLine($"  [!] {text}");
 
     /// <summary>
@@ -46,6 +57,7 @@ public sealed class ConsoleIO
         return line;
     }
 
+    /// <summary>Reads a line, asking again until it is not empty.</summary>
     public string ReadNonEmpty(string prompt)
     {
         while (true)
@@ -58,6 +70,13 @@ public sealed class ConsoleIO
         }
     }
 
+    /// <summary>
+    /// Reads an integer from <paramref name="min"/> to <paramref name="max"/> (inclusive), asking again on invalid input.
+    /// </summary>
+    /// <param name="prompt">Prompt text.</param>
+    /// <param name="min">Lowest accepted value.</param>
+    /// <param name="max">Highest accepted value.</param>
+    /// <param name="allowCancel">Whether typing the cancel keyword aborts the operation.</param>
     public int ReadInt(string prompt, int min, int max, bool allowCancel = true)
     {
         while (true)

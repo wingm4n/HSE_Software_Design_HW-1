@@ -16,10 +16,12 @@ public sealed record CatalogEntry<T>(string Title, Func<ConsoleIO, string, T> Cr
 /// </summary>
 public static class ItemCatalog
 {
+    // Prompts shared by several catalog entries.
     private static readonly string SimplicityPrompt = $"Simplicity for beginners ({IBeginnerRated.MinSimplicity}-{IBeginnerRated.MaxSimplicity}): ";
     private const string EnergyPrompt = "Daily energy consumption, kWh: ";
     private const string SizePrompt = "Size (e.g. S / M / L): ";
 
+    /// <summary>Kinds of transport offered by the "accept transport" menu, in menu order.</summary>
     public static IReadOnlyList<CatalogEntry<Transport>> Transports { get; } = new[]
     {
         new CatalogEntry<Transport>("Scooter", (io, inv) =>
@@ -32,6 +34,7 @@ public static class ItemCatalog
             new Bicycle(inv, io.ReadInt(SimplicityPrompt, IBeginnerRated.MinSimplicity, IBeginnerRated.MaxSimplicity))),
     };
 
+    /// <summary>Kinds of things offered by the "put a thing on balance" menu, in menu order.</summary>
     public static IReadOnlyList<CatalogEntry<Thing>> Things { get; } = new[]
     {
         new CatalogEntry<Thing>("Helmet", (io, inv) => new Helmet(inv, io.ReadNonEmpty(SizePrompt))),

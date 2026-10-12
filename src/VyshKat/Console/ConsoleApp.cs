@@ -5,11 +5,23 @@ namespace VyshKat.Cli;
 /// <summary>Interactive text menu on top of <see cref="FleetService"/>.</summary>
 public sealed class ConsoleApp
 {
+    // The user's own fleet, shared by all menu actions and reports (FleetService is a singleton in the container).
     private readonly FleetService _fleet;
+    // All text input/output goes through this wrapper; the console itself is never touched directly.
     private readonly ConsoleIO _io;
+    // Formats the three reports (summary, beginner list, inventory list).
     private readonly FleetReportPrinter _printer;
+    // Scripted demo; works on its own fleet, not on _fleet.
     private readonly DemoScenario _demo;
 
+    /// <summary>
+    /// Creates the menu; all collaborators come from the DI container.
+    /// </summary>
+    /// <param name="fleet">The fleet the menu works with.</param>
+    /// <param name="io">Text input/output.</param>
+    /// <param name="printer">Report formatter.</param>
+    /// <param name="demo">Demo scenario.</param>
+    /// <exception cref="ArgumentNullException">Any argument is <c>null</c>.</exception>
     public ConsoleApp(FleetService fleet, ConsoleIO io, FleetReportPrinter printer, DemoScenario demo)
     {
         _fleet = fleet ?? throw new ArgumentNullException(nameof(fleet));
@@ -18,6 +30,7 @@ public sealed class ConsoleApp
         _demo = demo ?? throw new ArgumentNullException(nameof(demo));
     }
 
+    /// <summary>Runs the menu loop until the user chooses 0 or the input stream is closed.</summary>
     public void Run()
     {
         _io.WriteLine("==============================================");
@@ -29,6 +42,7 @@ public sealed class ConsoleApp
             while (true)
             {
                 PrintMenu();
+                // Main menu choice: 'cancel' is not meaningful here, so it is treated as invalid input.
                 var choice = _io.ReadInt("> ", 0, 6, allowCancel: false);
                 _io.WriteLine();
 
@@ -39,6 +53,7 @@ public sealed class ConsoleApp
                 _io.WriteLine();
             }
         }
+        // Piped/redirected input ended: leave the loop gracefully instead of crashing.
         catch (EndOfStreamException)
         {
             _io.WriteLine();
@@ -48,6 +63,7 @@ public sealed class ConsoleApp
         _io.WriteLine("Goodbye!");
     }
 
+    /// <summary>Prints the list of menu items.</summary>
     private void PrintMenu()
     {
         _io.WriteLine("Main menu:");
@@ -60,6 +76,10 @@ public sealed class ConsoleApp
         _io.WriteLine("  0. Exit");
     }
 
+    /// <summary>
+    /// Performs the chosen menu item. User cancellation and invalid domain data are reported to the user
+    /// instead of crashing the application.
+    /// </summary>
     private void Execute(int choice)
     {
         try
@@ -74,6 +94,7 @@ public sealed class ConsoleApp
                 case 6: _demo.Run(); break;
             }
         }
+        // The user typed 'cancel' at some prompt; nothing has been added to the fleet yet.
         catch (OperationCanceledException)
         {
             _io.WriteLine("Cancelled, nothing was changed.");
@@ -85,6 +106,10 @@ public sealed class ConsoleApp
         }
     }
 
+    /// <summary>
+    /// Menu scenario: ask for the kind and fields of a new vehicle and send it to the service center.
+    /// The inventory number is checked for uniqueness before the vehicle is created.
+    /// </summary>
     private void AddTransport()
     {
         _io.WriteLine($"(type '{ConsoleIO.CancelKeyword}' at any prompt to abort)");
@@ -103,6 +128,7 @@ public sealed class ConsoleApp
                           $"Transport was NOT accepted: {transport}");
     }
 
+    /// <summary>Menu scenario: ask for the kind and fields of a thing and put it on balance (no inspection).</summary>
     private void AddThing()
     {
         _io.WriteLine($"(type '{ConsoleIO.CancelKeyword}' at any prompt to abort)");
