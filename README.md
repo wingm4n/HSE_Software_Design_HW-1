@@ -4,12 +4,13 @@
 Stack: C# on .NET 10 (SDK-style project), console application
 Libraries: Microsoft.Extensions.DependencyInjection (DI container), xUnit + Moq (unit testing) 
 
-Tests coverage check: Cobertura framework
-Result: Line coverage 94.88%, Branch coverage 95.57%
+Tests coverage check: Cobertura framework, XML
+Result: Line coverage 95.09%, Branch coverage 96.46%
 
 Запуск  приложения: 
 dotnet build
 dotnet run --project src/VyshKat
+
 Запуск тестов: dotnet test
 
 Проверка покрытия тестами: 
